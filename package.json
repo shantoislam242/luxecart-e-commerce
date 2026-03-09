@@ -4,14 +4,14 @@
   "version": "0.0.0",
   "restartedAt": "2026-03-09T01:30:00Z",
   "type": "module",
-  "scripts": {
-    "dev": "concurrently --kill-others \"npm run api\" \"vite\"",
-    "api": "tsx src/server.ts",
-    "build": "vite build",
-    "preview": "vite preview",
-    "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
-  },
+ "scripts": {
+  "dev": "concurrently --kill-others \"npm run api\" \"vite\"",
+  "api": "tsx src/server.ts",
+  "build": "vite build",
+  "preview": "vite preview",
+  "clean": "rm -rf dist",
+  "lint": "tsc --noEmit"
+},
   "dependencies": {
     "@google/genai": "^1.29.0",
     "@tailwindcss/vite": "^4.1.14",

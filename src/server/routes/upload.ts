@@ -4,6 +4,10 @@ import path from "path";
 import fs from "fs";
 import { protect } from "../middleware/auth.ts";
 
+// Absolute base URL for serving uploaded files
+// Set BACKEND_URL on Render: https://luxecart-e-commerce.onrender.com
+const BACKEND_URL = (process.env.BACKEND_URL || "http://localhost:3000").replace(/\/$/, "");
+
 // Use process.cwd() for reliable path resolution regardless of __dirname tricks
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 if (!fs.existsSync(UPLOAD_DIR)) {
@@ -62,7 +66,7 @@ router.post(
         if (!req.file) {
             return res.status(400).json({ message: "No image file received. Make sure to send a file with field name 'image'." });
         }
-        const url = `/uploads/${req.file.filename}`;
+        const url = `${BACKEND_URL}/uploads/${req.file.filename}`;
         console.log("[upload] Saved:", url);
         res.json({ url, filename: req.file.filename });
     }
@@ -85,7 +89,7 @@ router.post(
         if (!req.files || (req.files as any[]).length === 0) {
             return res.status(400).json({ message: "No image files received." });
         }
-        const urls = (req.files as any[]).map((f) => `/uploads/${f.filename}`);
+        const urls = (req.files as any[]).map((f) => `${BACKEND_URL}/uploads/${f.filename}`);
         res.json({ urls });
     }
 );

@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "restartedAt": "2026-03-09T01:30:00Z",
   "type": "module",
- "scripts": {
+"scripts": {
   "dev": "concurrently --kill-others \"npm run api\" \"vite\"",
-  "api": "tsx src/server.ts",
+  "api": "tsx server.ts",
   "build": "vite build",
   "preview": "vite preview",
   "clean": "rm -rf dist",

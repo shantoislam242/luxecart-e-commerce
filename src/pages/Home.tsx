@@ -251,7 +251,7 @@ export default function Home() {
     try {
       const currentPage = isLoadMore ? page + 1 : 1;
       const res = await fetch(
-        `/api/products?keyword=${keyword}&category=${category}&page=${currentPage}&limit=12`,
+        `${API_BASE}/products?keyword=${keyword}&category=${category}&page=${currentPage}&limit=12`,
         { signal }
       );
       if (!res.ok) throw new Error("Network response was not ok");

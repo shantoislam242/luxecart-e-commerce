@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import ProductCard from "../components/ProductCard.tsx";
 import { useCart } from "../context/CartContext.tsx";
+import { API_BASE } from "../api/api.ts";
 
 // ── Category config ──────────────────────────────────────────────────────────
 const CATEGORIES: Record<string, {
@@ -94,7 +95,7 @@ export default function CategoryPage() {
         try {
             const currentPage = isLoadMore ? page + 1 : 1;
             const res = await fetch(
-                `/api/products?category=${encodeURIComponent(dbCategory)}&page=${currentPage}&limit=12`,
+                `${API_BASE}/products?category=${encodeURIComponent(dbCategory)}&page=${currentPage}&limit=12`,
                 { signal }
             );
             const data = await res.json();

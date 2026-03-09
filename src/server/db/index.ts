@@ -1,22 +1,19 @@
 import Database from "better-sqlite3";
 import path from "path";
-import { fileURLToPath } from "url";
 import bcrypt from "bcryptjs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const dbPath = path.join(__dirname, "../../../ecommerce.db");
+// process.cwd() = project root — works correctly on Render and locally
+const dbPath = path.join(process.cwd(), "ecommerce.db");
 console.log("Database path:", dbPath);
 export const db = new Database(dbPath);
 
-// ── Performance pragmas ─────────────────────────────────────────────────────
-// WAL = far better concurrent reads; cache_size = 64 MB in-memory page cache
+// Performance + integrity pragmas
 db.pragma("journal_mode = WAL");
+db.pragma("foreign_keys = ON");        // enforce FK constraints
 db.pragma("synchronous = NORMAL");
-db.pragma("cache_size = -65536"); // 64 MB
+db.pragma("cache_size = -65536");      // 64 MB page cache
 db.pragma("temp_store = MEMORY");
-db.pragma("mmap_size = 268435456"); // 256 MB mmap
+db.pragma("mmap_size = 268435456");    // 256 MB mmap
 
 
 export function initDB() {

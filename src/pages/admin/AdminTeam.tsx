@@ -180,7 +180,7 @@ export default function AdminTeam() {
                                 <ImageUpload
                                     label="Member Photo"
                                     value={form.img}
-                                    onChange={(url) => setForm({ ...form, img: url as string })}
+                                    onChange={(url) => setForm((prev) => ({ ...prev, img: url as string }))}
                                 />
 
                                 <div>

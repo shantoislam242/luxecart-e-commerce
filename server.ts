@@ -24,7 +24,7 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   // Initialize Database
   try {
@@ -52,7 +52,7 @@ async function startServer() {
   app.get("/api/img", proxyImage);               // External image proxy
 
   // Serve uploaded images as static files (with 7-day cache)
-  app.use("/uploads", express.static(path.join(__dirname, "public/uploads"), {
+  app.use("/uploads", express.static(path.join(process.cwd(), "public", "uploads"), {
     maxAge: "7d",
     immutable: true,
   }));

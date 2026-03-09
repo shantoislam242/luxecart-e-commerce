@@ -324,7 +324,7 @@ export default function AdminProducts() {
                 <ImageUpload
                   label="Product Image"
                   value={formData.image}
-                  onChange={(url) => setFormData({ ...formData, image: url as string })}
+                  onChange={(url) => setFormData((prev) => ({ ...prev, image: url as string }))}
                 />
 
                 <div className="space-y-2">

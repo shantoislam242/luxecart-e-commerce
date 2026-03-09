@@ -321,7 +321,7 @@ export default function AdminBlog() {
                                 <ImageUpload
                                     label="Cover Image"
                                     value={form.coverImg}
-                                    onChange={(url) => setForm({ ...form, coverImg: url as string })}
+                                    onChange={(url) => setForm((prev) => ({ ...prev, coverImg: url as string }))}
                                 />
 
                                 {/* Excerpt */}

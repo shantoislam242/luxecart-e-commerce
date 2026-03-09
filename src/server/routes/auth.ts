@@ -1,12 +1,13 @@
 import express from "express";
-import { 
-  registerUser, 
-  loginUser, 
-  getUserProfile, 
+import {
+  registerUser,
+  loginUser,
+  getUserProfile,
   deleteUser,
   getUsers,
   updateUserRole,
-  getDashboardStats
+  getDashboardStats,
+  changePassword,
 } from "../controllers/authController.ts";
 import { protect, admin } from "../middleware/auth.ts";
 
@@ -21,5 +22,6 @@ router.delete("/:id", protect, deleteUser);
 router.get("/users", protect, admin, getUsers);
 router.put("/users/:id/role", protect, admin, updateUserRole);
 router.get("/stats", protect, admin, getDashboardStats);
+router.put("/change-password", protect, changePassword);
 
 export default router;

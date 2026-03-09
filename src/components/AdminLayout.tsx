@@ -12,6 +12,7 @@ import {
   BookOpen,
   UserSquare,
   MessageSquare,
+  KeyRound,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "../context/AuthContext.tsx";
@@ -29,6 +30,7 @@ const contentItems = [
   { icon: BookOpen, label: "Blog Posts", path: "/admin/blog" },
   { icon: UserSquare, label: "Team Members", path: "/admin/team" },
   { icon: MessageSquare, label: "Messages", path: "/admin/messages" },
+  { icon: KeyRound, label: "Settings", path: "/admin/settings" },
 ];
 
 
@@ -94,8 +96,8 @@ export default function AdminLayout() {
                   key={item.path}
                   to={item.path}
                   className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all group ${isActive
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                 >
                   <div className="flex items-center space-x-3">

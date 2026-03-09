@@ -30,10 +30,10 @@ async function startServer() {
     console.error("Failed to initialize database:", err);
   }
 
-  // ── Gzip / Brotli compression — shrinks responses by ~70% ──
+  // ── Gzip compression — shrinks JSON responses by ~70% ──
   app.use(compression());
   app.use(cors());
-  app.use(express.json({ limit: "1mb" }));
+  app.use(express.json());
 
   // API Routes
   app.use("/api/auth", authRoutes);
@@ -47,19 +47,11 @@ async function startServer() {
   });
 
   if (process.env.NODE_ENV === "production") {
-    // Long-lived cache for hashed static assets (fonts, images, JS chunks)
-    app.use(
-      "/assets",
-      express.static(path.join(__dirname, "dist", "assets"), {
-        maxAge: "30d",
-        immutable: true,
-      })
-    );
-    // Serve everything else (index.html, etc.) without long cache
+    // Serve static files in production
     app.use(express.static(path.join(__dirname, "dist")));
-    app.get("*", (_req, res) =>
-      res.sendFile(path.join(__dirname, "dist", "index.html"))
-    );
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(__dirname, "dist", "index.html"));
+    });
   }
 
   app.listen(PORT, "0.0.0.0", () => {

@@ -10,6 +10,15 @@ const dbPath = path.join(__dirname, "../../../ecommerce.db");
 console.log("Database path:", dbPath);
 export const db = new Database(dbPath);
 
+// ── Performance pragmas ─────────────────────────────────────────────────────
+// WAL = far better concurrent reads; cache_size = 64 MB in-memory page cache
+db.pragma("journal_mode = WAL");
+db.pragma("synchronous = NORMAL");
+db.pragma("cache_size = -65536"); // 64 MB
+db.pragma("temp_store = MEMORY");
+db.pragma("mmap_size = 268435456"); // 256 MB mmap
+
+
 export function initDB() {
   // Users Table
   db.exec(`
@@ -40,6 +49,10 @@ export function initDB() {
       createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // ── Performance indexes — make LIKE queries on category/name instant ──
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_products_category ON products(category)`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_products_name     ON products(name)`);
 
   // Orders Table
   db.exec(`
@@ -137,22 +150,24 @@ export function initDB() {
     }
   }
 
-  // Seed Admin User if not exists
-  const salt = bcrypt.genSaltSync(10);
-  const hashedPassword = bcrypt.hashSync("admin123", salt);
-  const adminExists = db.prepare("SELECT * FROM users WHERE email = ?").get("admin@luxecart.com");
+  // Seed Admin User if not exists — only hash password once, on first creation
+  const adminExists = db.prepare("SELECT id, role FROM users WHERE email = ?").get("admin@luxecart.com") as any;
 
   if (!adminExists) {
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync("admin123", salt);
     db.prepare(`
       INSERT INTO users (name, email, password, role)
       VALUES (?, ?, ?, ?)
     `).run("Admin User", "admin@luxecart.com", hashedPassword, "admin");
     console.log("Admin user seeded: admin@luxecart.com / admin123");
+  } else if (adminExists.role !== "admin") {
+    // Only fix role — skip expensive bcrypt if password already set
+    db.prepare("UPDATE users SET role = 'admin' WHERE email = ?")
+      .run("admin@luxecart.com");
+    console.log("Admin role restored for admin@luxecart.com");
   } else {
-    // Force update password and role for demo reliability
-    db.prepare("UPDATE users SET password = ?, role = 'admin' WHERE email = ?")
-      .run(hashedPassword, "admin@luxecart.com");
-    console.log("Admin user credentials reset: admin@luxecart.com / admin123");
+    console.log("Admin user OK: admin@luxecart.com");
   }
 
   const verifyAdmin = db.prepare("SELECT * FROM users WHERE email = ?").get("admin@luxecart.com") as any;

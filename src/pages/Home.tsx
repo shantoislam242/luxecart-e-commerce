@@ -207,7 +207,10 @@ function Toast({
 export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [visibleCount, setVisibleCount] = useState(12);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+
   const [searchParams] = useSearchParams();
   const keyword = searchParams.get("keyword") || "";
   const [category, setCategory] = useState(searchParams.get("category") || "");
@@ -235,27 +238,50 @@ export default function Home() {
   // Sync category from URL
   useEffect(() => {
     setCategory(searchParams.get("category") || "");
-    setVisibleCount(12); // reset pagination on filter change
+    setPage(1); // Reset to first page
+    setProducts([]); // Clear list for new filter
   }, [searchParams]);
 
-  // Fetch products
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `/api/products?keyword=${keyword}&category=${category}`
-        );
-        const data = await res.json();
-        setProducts(data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
+  // Fetch products — uses AbortController so switching filters cancels the old request
+  const fetchProducts = useCallback(async (isLoadMore = false, signal?: AbortSignal) => {
+    if (isLoadMore) setLoadingMore(true);
+    else setLoading(true);
+
+    try {
+      const currentPage = isLoadMore ? page + 1 : 1;
+      const res = await fetch(
+        `/api/products?keyword=${keyword}&category=${category}&page=${currentPage}&limit=12`,
+        { signal }
+      );
+      if (!res.ok) throw new Error("Network response was not ok");
+      const data = await res.json();
+
+      if (isLoadMore) {
+        setProducts((prev) => [...prev, ...data.products]);
+        setPage(currentPage);
+      } else {
+        setProducts(data.products);
+        setPage(1);
       }
-    };
-    fetchProducts();
-  }, [keyword, category]);
+      setTotalPages(data.totalPages);
+    } catch (error: any) {
+      if (error?.name !== "AbortError") {
+        console.error("Error fetching products:", error);
+      }
+    } finally {
+      if (!signal?.aborted) {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    }
+  }, [keyword, category, page]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchProducts(false, controller.signal);
+    return () => controller.abort(); // cancel if filter changes before response
+  }, [keyword, category]); // only on filter change. loadMore manual toggle.
+
 
   // Auto-advance hero slides every 5 s
   const nextSlide = useCallback(
@@ -654,12 +680,12 @@ export default function Home() {
         ) : products.length > 0 ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {products.slice(0, visibleCount).map((product: any, idx: number) => (
+              {products.map((product: any, idx: number) => (
                 <motion.div
                   key={product.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(idx, 7) * 0.05 }}
+                  transition={{ delay: Math.min(idx % 12, 7) * 0.05 }}
                 >
                   <ProductCard product={product} onAddToCart={showToast} />
                 </motion.div>
@@ -667,14 +693,21 @@ export default function Home() {
             </div>
 
             {/* Load More */}
-            {visibleCount < products.length && (
+            {page < totalPages && (
               <div className="text-center mt-12">
                 <button
-                  onClick={() => setVisibleCount((c) => c + 12)}
-                  className="inline-flex items-center space-x-2 border-2 border-slate-200 text-slate-700 px-8 py-3 rounded-2xl font-bold hover:border-emerald-500 hover:text-emerald-600 active:scale-95 transition-all"
+                  disabled={loadingMore}
+                  onClick={() => fetchProducts(true)}
+                  className="inline-flex items-center space-x-2 border-2 border-slate-200 text-slate-700 px-8 py-3 rounded-2xl font-bold hover:border-emerald-500 hover:text-emerald-600 active:scale-95 transition-all disabled:opacity-50"
                 >
-                  <span>Load More ({products.length - visibleCount} remaining)</span>
-                  <ChevronRight className="w-5 h-5" />
+                  {loadingMore ? (
+                    <div className="w-5 h-5 border-2 border-slate-300 border-t-emerald-500 rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <span>Load More</span>
+                      <ChevronRight className="w-5 h-5" />
+                    </>
+                  )}
                 </button>
               </div>
             )}

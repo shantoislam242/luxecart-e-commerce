@@ -40,9 +40,9 @@ export default function AdminProducts() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch("/api/products");
+      const res = await fetch("/api/products?limit=1000"); // Admin can see more
       const data = await res.json();
-      setProducts(data);
+      setProducts(data.products || []);
     } catch (error) {
       console.error(error);
     } finally {

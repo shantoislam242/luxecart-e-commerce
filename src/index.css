@@ -16,19 +16,6 @@
     @apply font-sans text-slate-900 antialiased;
   }
 
-  /* Global image defaults — prevent dragging, ensure crisp scaling */
-  img {
-    -webkit-user-drag: none;
-    user-select: none;
-    image-rendering: -webkit-optimize-contrast;
-  }
-
-  /* Skip rendering off-screen product grids until needed */
-  .product-grid-item {
-    content-visibility: auto;
-    contain-intrinsic-size: 0 420px;
-  }
-
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
@@ -213,3 +200,4 @@
 .markdown-body p {
   @apply mb-4;
 }
+

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Star, ShoppingCart, Heart, Eye, Plus } from "lucide-react";
 import { useCart } from "../context/CartContext.tsx";
 import { motion, AnimatePresence } from "motion/react";
@@ -33,6 +33,7 @@ export default function ProductCard({
   onAddToCart?: (msg: string) => void;
 }) {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const images: string[] = JSON.parse(product.images);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [addedAnim, setAddedAnim] = useState(false);
@@ -144,14 +145,13 @@ export default function ProductCard({
           className={`absolute inset-x-0 bottom-0 z-10 flex items-center justify-center gap-2 p-3 bg-gradient-to-t from-slate-900/70 to-transparent transition-all duration-300 ${hovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
             }`}
         >
-          <Link
-            to={`/product/${product.id}`}
-            onClick={(e) => e.stopPropagation()}
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/product/${product.id}`); }}
             className="flex items-center space-x-1.5 bg-white/90 hover:bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95"
           >
             <Eye className="w-3.5 h-3.5" />
             <span>Quick View</span>
-          </Link>
+          </button>
 
           {product.stock > 0 && (
             <button

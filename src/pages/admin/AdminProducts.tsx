@@ -5,12 +5,11 @@ import {
   Search,
   Edit2,
   Trash2,
-  MoreVertical,
-  Filter,
   Package,
   AlertCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import ImageUpload from "../../components/ImageUpload.tsx";
 
 export default function AdminProducts() {
   const { user } = useAuth();
@@ -263,7 +262,7 @@ export default function AdminProducts() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden"
+              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
             >
               <div className="p-8 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="text-xl font-bold text-slate-900">{editingProduct ? "Edit Product" : "Add New Product"}</h3>
@@ -272,7 +271,7 @@ export default function AdminProducts() {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-8 space-y-6">
+              <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto flex-1">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Product Name</label>
@@ -322,16 +321,11 @@ export default function AdminProducts() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Image URL</label>
-                  <input
-                    required
-                    type="url"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
-                  />
-                </div>
+                <ImageUpload
+                  label="Product Image"
+                  value={formData.image}
+                  onChange={(url) => setFormData({ ...formData, image: url as string })}
+                />
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Description</label>

@@ -13,6 +13,7 @@ import newsletterRoutes from "./src/server/routes/newsletter.ts";
 import blogRoutes from "./src/server/routes/blog.ts";
 import teamRoutes from "./src/server/routes/team.ts";
 import messagesRoutes from "./src/server/routes/messages.ts";
+import uploadRoutes from "./src/server/routes/upload.ts";
 import { proxyImage } from "./src/server/controllers/imageProxyController.ts";
 import { initDB } from "./src/server/db/index.ts";
 
@@ -47,7 +48,14 @@ async function startServer() {
   app.use("/api/blog", blogRoutes);
   app.use("/api/team", teamRoutes);
   app.use("/api/messages", messagesRoutes);
-  app.get("/api/img", proxyImage); // Image proxy with disk cache
+  app.use("/api/upload", uploadRoutes);          // Image upload (multer)
+  app.get("/api/img", proxyImage);               // External image proxy
+
+  // Serve uploaded images as static files (with 7-day cache)
+  app.use("/uploads", express.static(path.join(__dirname, "public/uploads"), {
+    maxAge: "7d",
+    immutable: true,
+  }));
 
   // Health Check
   app.get("/api/health", (req, res) => {

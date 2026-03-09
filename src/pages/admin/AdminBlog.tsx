@@ -4,6 +4,7 @@ import {
     Plus, Pencil, Trash2, Eye, EyeOff, Search, X, Save, ChevronDown,
     BookOpen, Image, AlignLeft, Tag, User, Clock, Globe, FileText,
 } from "lucide-react";
+import ImageUpload from "../../components/ImageUpload.tsx";
 
 interface BlogPost {
     id: number;
@@ -235,7 +236,7 @@ export default function AdminBlog() {
                     >
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl my-8"
+                            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl my-4 flex flex-col max-h-[92vh]"
                         >
                             {/* Modal Header */}
                             <div className="flex items-center justify-between p-6 border-b border-slate-100">
@@ -248,7 +249,7 @@ export default function AdminBlog() {
                             </div>
 
                             {/* Modal Body */}
-                            <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+                            <div className="p-6 space-y-5 overflow-y-auto flex-1">
                                 {/* Title */}
                                 <div>
                                     <label className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">
@@ -317,18 +318,11 @@ export default function AdminBlog() {
                                 </div>
 
                                 {/* Cover Image */}
-                                <div>
-                                    <label className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">
-                                        <Image className="w-3.5 h-3.5" /><span>Cover Image URL</span>
-                                    </label>
-                                    <input type="text" placeholder="https://images.unsplash.com/..."
-                                        value={form.coverImg} onChange={(e) => setForm({ ...form, coverImg: e.target.value })}
-                                        className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-sm"
-                                    />
-                                    {form.coverImg && (
-                                        <img src={form.coverImg} alt="preview" className="mt-2 w-full h-28 object-cover rounded-xl" referrerPolicy="no-referrer" />
-                                    )}
-                                </div>
+                                <ImageUpload
+                                    label="Cover Image"
+                                    value={form.coverImg}
+                                    onChange={(url) => setForm({ ...form, coverImg: url as string })}
+                                />
 
                                 {/* Excerpt */}
                                 <div>

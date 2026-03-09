@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Plus, Pencil, Trash2, X, Save, Users, Image, User, Briefcase, AlignLeft, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Save, Users, User, Briefcase, AlignLeft, ArrowUp, ArrowDown } from "lucide-react";
+import ImageUpload from "../../components/ImageUpload.tsx";
 
 interface TeamMember {
     id: number;
@@ -166,7 +167,7 @@ export default function AdminTeam() {
                         onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
                     >
                         <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-white rounded-3xl shadow-2xl w-full max-w-md"
+                            className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
                         >
                             <div className="flex items-center justify-between p-6 border-b border-slate-100">
                                 <h2 className="text-xl font-bold text-slate-900">{editingMember ? "Edit Member" : "Add Team Member"}</h2>
@@ -176,13 +177,11 @@ export default function AdminTeam() {
                             </div>
 
                             <div className="p-6 space-y-4">
-                                {/* Preview */}
-                                {form.img && (
-                                    <div className="flex justify-center">
-                                        <img src={form.img} alt="preview"
-                                            className="w-20 h-20 rounded-2xl object-cover border-4 border-slate-100" referrerPolicy="no-referrer" />
-                                    </div>
-                                )}
+                                <ImageUpload
+                                    label="Member Photo"
+                                    value={form.img}
+                                    onChange={(url) => setForm({ ...form, img: url as string })}
+                                />
 
                                 <div>
                                     <label className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">
@@ -200,16 +199,6 @@ export default function AdminTeam() {
                                     </label>
                                     <input type="text" placeholder="e.g. Head of Design"
                                         value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
-                                        className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-sm"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">
-                                        <Image className="w-3.5 h-3.5" /><span>Photo URL</span>
-                                    </label>
-                                    <input type="text" placeholder="https://..."
-                                        value={form.img} onChange={(e) => setForm({ ...form, img: e.target.value })}
                                         className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-sm"
                                     />
                                 </div>

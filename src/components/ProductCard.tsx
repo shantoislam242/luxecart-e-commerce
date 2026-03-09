@@ -1,28 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Star, ShoppingCart, Heart, Eye, Plus } from "lucide-react";
 import { useCart } from "../context/CartContext.tsx";
 import { motion, AnimatePresence } from "motion/react";
 
-// Optimise an image URL:
-// • Unsplash → shrink to 400 px wide, quality 70, WebP
-// • Local paths → return as-is
-function optimizeUrl(src: string): string {
+// Route all external images through the local proxy for disk caching.
+// After first download, images are served from disk instantly with
+// 7-day immutable Cache-Control — no more slow Unsplash reloads on scroll.
+function proxyUrl(src: string): string {
   if (!src) return src;
-  if (src.startsWith("https://images.unsplash.com")) {
-    try {
-      const url = new URL(src);
+  // Already proxied or a local path → keep as-is
+  if (src.startsWith("/") || src.startsWith("blob:") || src.startsWith("data:")) return src;
+  // External → optimise Unsplash params then route through proxy
+  try {
+    const url = new URL(src);
+    if (url.hostname === "images.unsplash.com") {
       url.searchParams.set("w", "400");
-      url.searchParams.set("q", "70");
+      url.searchParams.set("q", "65");
       url.searchParams.set("fm", "webp");
       url.searchParams.set("fit", "crop");
-      url.searchParams.set("auto", "format");
-      return url.toString();
-    } catch {
-      return src;
+      url.searchParams.delete("auto");
     }
+    return `/api/img?url=${encodeURIComponent(url.toString())}`;
+  } catch {
+    return src;
   }
-  return src;
 }
 
 export default function ProductCard({
@@ -40,7 +42,7 @@ export default function ProductCard({
   const [hovered, setHovered] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (product.stock === 0) return;
@@ -55,9 +57,9 @@ export default function ProductCard({
     setAddedAnim(true);
     setTimeout(() => setAddedAnim(false), 1200);
     onAddToCart?.(`"${product.name}" added to cart!`);
-  };
+  }, [product, images, addToCart, onAddToCart]);
 
-  const handleWishlist = (e: React.MouseEvent) => {
+  const handleWishlist = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsWishlisted((v) => !v);
@@ -66,22 +68,22 @@ export default function ProductCard({
         ? `"${product.name}" removed from wishlist`
         : `❤️ "${product.name}" saved to wishlist`
     );
-  };
+  }, [isWishlisted, product.name, onAddToCart]);
 
   const discount = product.discount && product.discount > 0 ? product.discount : null;
   const originalPrice = discount
     ? (product.price / (1 - discount / 100)).toFixed(2)
     : null;
 
-  const primarySrc = optimizeUrl(images[0]);
-  const altSrc = images.length > 1 ? optimizeUrl(images[1]) : null;
+  // Pre-process URLs once per render (stable since images array doesn't change)
+  const primarySrc = proxyUrl(images[0]);
+  const altSrc = images.length > 1 ? proxyUrl(images[1]) : null;
 
   return (
-    <motion.div
-      whileHover={{ y: -6 }}
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-      className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-shadow duration-300 group relative"
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group relative"
     >
       {/* ── Image area — fixed 4:3 ratio prevents layout shift ── */}
       <Link
@@ -95,7 +97,7 @@ export default function ProductCard({
             }`}
         />
 
-        {/* Primary image */}
+        {/* Primary image — routed through local proxy cache */}
         <img
           src={primarySrc}
           alt={product.name}
@@ -106,7 +108,6 @@ export default function ProductCard({
           onLoad={() => setImgLoaded(true)}
           className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${hovered && altSrc ? "opacity-0" : "opacity-100"
             } ${imgLoaded ? "opacity-100" : "opacity-0"}`}
-          referrerPolicy="no-referrer"
         />
 
         {/* Alternate image on hover (lazy) */}
@@ -120,7 +121,6 @@ export default function ProductCard({
             decoding="async"
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${hovered ? "opacity-100 scale-105" : "opacity-0 scale-100"
               }`}
-            referrerPolicy="no-referrer"
           />
         )}
 
@@ -244,6 +244,6 @@ export default function ProductCard({
           </p>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

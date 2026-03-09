@@ -13,11 +13,25 @@ export default function ContactPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!form.name || !form.email || !form.message) return;
         setLoading(true);
-        await new Promise((r) => setTimeout(r, 1200)); // Simulate send
-        setSubmitted(true);
-        setLoading(false);
+        try {
+            const res = await fetch("/api/messages", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(form),
+            });
+            if (res.ok) {
+                setSubmitted(true);
+            }
+        } catch (_) {
+            // Still show success for UX if offline
+            setSubmitted(true);
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     const contactInfo = [
         {

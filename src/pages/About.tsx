@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import {
@@ -6,32 +6,8 @@ import {
     Award, Heart, ChevronRight, ArrowRight, Zap,
 } from "lucide-react";
 
-const team = [
-    {
-        name: "Alex Johnson",
-        role: "Founder & CEO",
-        img: "https://i.pravatar.cc/200?u=alex-johnson",
-        bio: "10+ years in e-commerce. Passionate about delivering premium experiences.",
-    },
-    {
-        name: "Sarah Chen",
-        role: "Head of Curation",
-        img: "https://i.pravatar.cc/200?u=sarah-chen",
-        bio: "Former fashion editor turned product curator with an impeccable eye for quality.",
-    },
-    {
-        name: "Marcus Reid",
-        role: "CTO",
-        img: "https://i.pravatar.cc/200?u=marcus-reid",
-        bio: "Building the fastest and most reliable shopping platform in the industry.",
-    },
-    {
-        name: "Priya Patel",
-        role: "Customer Experience",
-        img: "https://i.pravatar.cc/200?u=priya-patel",
-        bio: "Dedicated to making every customer interaction memorable and seamless.",
-    },
-];
+interface TeamMember { id: number; name: string; role: string; img: string; bio: string; displayOrder: number; }
+
 
 const values = [
     {
@@ -80,6 +56,15 @@ const stats = [
 ];
 
 export default function AboutPage() {
+    const [team, setTeam] = useState<TeamMember[]>([]);
+
+    useEffect(() => {
+        fetch("/api/team")
+            .then((r) => r.json())
+            .then((data) => setTeam(Array.isArray(data) ? data : []))
+            .catch(() => { });
+    }, []);
+
     return (
         <div className="space-y-0 pb-20 -mt-8">
             {/* ── Hero ── */}
@@ -237,9 +222,9 @@ export default function AboutPage() {
                         <p className="text-slate-500 mt-3">Passionate experts dedicated to bringing you the best.</p>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {team.map(({ name, role, img, bio }, idx) => (
+                        {team.map(({ id, name, role, img, bio }, idx) => (
                             <motion.div
-                                key={name}
+                                key={id}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
@@ -247,12 +232,14 @@ export default function AboutPage() {
                                 className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-shadow text-center group"
                             >
                                 <div className="relative overflow-hidden h-52">
-                                    <img
-                                        src={img}
-                                        alt={name}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                        referrerPolicy="no-referrer"
-                                    />
+                                    {img && (
+                                        <img
+                                            src={img}
+                                            alt={name}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            referrerPolicy="no-referrer"
+                                        />
+                                    )}
                                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </div>
                                 <div className="p-6 space-y-2">

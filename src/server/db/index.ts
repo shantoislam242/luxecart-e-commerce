@@ -110,6 +110,117 @@ export function initDB() {
     )
   `);
 
+  // ── Blog Posts Table ───────────────────────────────────────────────────────
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS blog_posts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      slug TEXT UNIQUE NOT NULL,
+      excerpt TEXT,
+      content TEXT,
+      category TEXT DEFAULT 'Lifestyle',
+      author TEXT DEFAULT 'Admin',
+      authorImg TEXT DEFAULT 'https://i.pravatar.cc/60?u=admin',
+      coverImg TEXT,
+      readTime TEXT DEFAULT '5 min read',
+      published INTEGER DEFAULT 1,
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_blog_category ON blog_posts(category)`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_blog_published ON blog_posts(published)`);
+
+  // ── Team Members Table ─────────────────────────────────────────────────────
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS team_members (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      role TEXT NOT NULL,
+      bio TEXT,
+      img TEXT,
+      displayOrder INTEGER DEFAULT 0,
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // ── Contact Messages Table ─────────────────────────────────────────────────
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS contact_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      subject TEXT,
+      message TEXT NOT NULL,
+      isRead INTEGER DEFAULT 0,
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // ── Seed blog posts ────────────────────────────────────────────────────────
+  const blogCount = db.prepare("SELECT COUNT(*) as count FROM blog_posts").get() as { count: number };
+  if (blogCount.count === 0) {
+    const seedBlogs = [
+      {
+        title: "10 Must-Have Gadgets for a Smart Home in 2026",
+        slug: "smart-home-gadgets-2026",
+        excerpt: "From voice assistants to smart lighting — we breakdown the top tech products that will transform your living space.",
+        content: "Full article content goes here. Edit this from the admin panel.",
+        category: "Electronics",
+        author: "Marcus Reid",
+        authorImg: "https://i.pravatar.cc/60?u=marcus-r",
+        coverImg: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=70&w=600&fm=webp",
+        readTime: "6 min read",
+        published: 1,
+      },
+      {
+        title: "Spring Fashion Trends: What to Wear This Season",
+        slug: "spring-fashion-trends-2026",
+        excerpt: "Our fashion editors handpicked the key pieces every wardrobe needs — from minimalist staples to bold statement looks.",
+        content: "Full article content goes here. Edit this from the admin panel.",
+        category: "Fashion",
+        author: "Sarah Chen",
+        authorImg: "https://i.pravatar.cc/60?u=sarah-c",
+        coverImg: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&q=70&w=600&fm=webp",
+        readTime: "5 min read",
+        published: 1,
+      },
+      {
+        title: "How to Build a Luxurious Living Room on a Budget",
+        slug: "luxurious-living-room-budget",
+        excerpt: "You don't need to spend a fortune to achieve a premium-looking home.",
+        content: "Full article content goes here. Edit this from the admin panel.",
+        category: "Home & Living",
+        author: "Priya Patel",
+        authorImg: "https://i.pravatar.cc/60?u=priya-p",
+        coverImg: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=70&w=600&fm=webp",
+        readTime: "8 min read",
+        published: 1,
+      },
+    ];
+    const insertBlog = db.prepare(`
+      INSERT INTO blog_posts (title, slug, excerpt, content, category, author, authorImg, coverImg, readTime, published)
+      VALUES (@title, @slug, @excerpt, @content, @category, @author, @authorImg, @coverImg, @readTime, @published)
+    `);
+    for (const b of seedBlogs) insertBlog.run(b);
+  }
+
+  // ── Seed team members ──────────────────────────────────────────────────────
+  const teamCount = db.prepare("SELECT COUNT(*) as count FROM team_members").get() as { count: number };
+  if (teamCount.count === 0) {
+    const seedTeam = [
+      { name: "Alex Johnson", role: "Founder & CEO", bio: "10+ years in e-commerce. Passionate about delivering premium experiences.", img: "https://i.pravatar.cc/200?u=alex-johnson", displayOrder: 1 },
+      { name: "Sarah Chen", role: "Head of Curation", bio: "Former fashion editor turned product curator with an impeccable eye for quality.", img: "https://i.pravatar.cc/200?u=sarah-chen", displayOrder: 2 },
+      { name: "Marcus Reid", role: "CTO", bio: "Building the fastest and most reliable shopping platform in the industry.", img: "https://i.pravatar.cc/200?u=marcus-reid", displayOrder: 3 },
+      { name: "Priya Patel", role: "Customer Experience", bio: "Dedicated to making every customer interaction memorable and seamless.", img: "https://i.pravatar.cc/200?u=priya-patel", displayOrder: 4 },
+    ];
+    const insertTeam = db.prepare(`
+      INSERT INTO team_members (name, role, bio, img, displayOrder)
+      VALUES (@name, @role, @bio, @img, @displayOrder)
+    `);
+    for (const t of seedTeam) insertTeam.run(t);
+  }
+
+
   // Seed initial data if empty
   const productCount = db.prepare("SELECT COUNT(*) as count FROM products").get() as { count: number };
   if (productCount.count === 0) {

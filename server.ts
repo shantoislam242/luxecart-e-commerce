@@ -10,6 +10,10 @@ import authRoutes from "./src/server/routes/auth.ts";
 import productRoutes from "./src/server/routes/products.ts";
 import orderRoutes from "./src/server/routes/orders.ts";
 import newsletterRoutes from "./src/server/routes/newsletter.ts";
+import blogRoutes from "./src/server/routes/blog.ts";
+import teamRoutes from "./src/server/routes/team.ts";
+import messagesRoutes from "./src/server/routes/messages.ts";
+import { proxyImage } from "./src/server/controllers/imageProxyController.ts";
 import { initDB } from "./src/server/db/index.ts";
 
 dotenv.config();
@@ -40,6 +44,10 @@ async function startServer() {
   app.use("/api/products", productRoutes);
   app.use("/api/orders", orderRoutes);
   app.use("/api/newsletter", newsletterRoutes);
+  app.use("/api/blog", blogRoutes);
+  app.use("/api/team", teamRoutes);
+  app.use("/api/messages", messagesRoutes);
+  app.get("/api/img", proxyImage); // Image proxy with disk cache
 
   // Health Check
   app.get("/api/health", (req, res) => {

@@ -9,6 +9,9 @@ import {
   ChevronRight,
   ShieldCheck,
   Mail,
+  BookOpen,
+  UserSquare,
+  MessageSquare,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "../context/AuthContext.tsx";
@@ -20,6 +23,14 @@ const sidebarItems = [
   { icon: Users, label: "Users", path: "/admin/users" },
   { icon: Mail, label: "Newsletter", path: "/admin/newsletter" },
 ];
+
+// Content management section in sidebar
+const contentItems = [
+  { icon: BookOpen, label: "Blog Posts", path: "/admin/blog" },
+  { icon: UserSquare, label: "Team Members", path: "/admin/team" },
+  { icon: MessageSquare, label: "Messages", path: "/admin/messages" },
+];
+
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -72,6 +83,32 @@ export default function AdminLayout() {
               </Link>
             );
           })}
+
+          {/* Content Management Section */}
+          <div className="pt-3 mt-3 border-t border-slate-100">
+            <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400 px-3 pb-2">Content</p>
+            {contentItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all group ${isActive
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <item.icon
+                      className={`w-5 h-5 ${isActive ? "text-emerald-600" : "text-slate-400 group-hover:text-slate-600"}`}
+                    />
+                    <span className="font-medium">{item.label}</span>
+                  </div>
+                  {isActive && <ChevronRight className="w-4 h-4" />}
+                </Link>
+              );
+            })}
+          </div>
         </nav>
 
         <div className="p-4 border-t border-slate-100 space-y-1">

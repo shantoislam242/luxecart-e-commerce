@@ -201,3 +201,8 @@
   @apply mb-4;
 }
 
+
+.animate-fadeIn {
+  animation: fade-in 0.35s ease forwards;
+}
+

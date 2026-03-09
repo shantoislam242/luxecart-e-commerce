@@ -25,6 +25,9 @@ import AdminProducts from "./pages/admin/AdminProducts.tsx";
 import AdminOrders from "./pages/admin/AdminOrders.tsx";
 import AdminUsers from "./pages/admin/AdminUsers.tsx";
 import AdminNewsletter from "./pages/admin/AdminNewsletter.tsx";
+import AdminBlog from "./pages/admin/AdminBlog.tsx";
+import AdminTeam from "./pages/admin/AdminTeam.tsx";
+import AdminMessages from "./pages/admin/AdminMessages.tsx";
 
 const ProtectedRoute = ({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) => {
   const { user, loading } = useAuth();
@@ -73,6 +76,9 @@ function AppContent() {
             <Route path="orders" element={<AdminOrders />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="newsletter" element={<AdminNewsletter />} />
+            <Route path="blog" element={<AdminBlog />} />
+            <Route path="team" element={<AdminTeam />} />
+            <Route path="messages" element={<AdminMessages />} />
           </Route>
         </Routes>
       </main>

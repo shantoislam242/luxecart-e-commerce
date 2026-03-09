@@ -680,15 +680,10 @@ export default function Home() {
         ) : products.length > 0 ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {products.map((product: any, idx: number) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(idx % 12, 7) * 0.05 }}
-                >
+              {products.map((product: any) => (
+                <div key={product.id} className="animate-fadeIn">
                   <ProductCard product={product} onAddToCart={showToast} />
-                </motion.div>
+                </div>
               ))}
             </div>
 
@@ -757,16 +752,10 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {recommendedProducts.map((product: any, idx: number) => (
-              <motion.div
-                key={`rec-${product.id}`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.08 }}
-              >
+            {recommendedProducts.map((product: any) => (
+              <div key={`rec-${product.id}`} className="animate-fadeIn">
                 <ProductCard product={product} onAddToCart={showToast} />
-              </motion.div>
+              </div>
             ))}
           </div>
         </section>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
+import { API_BASE } from "../api/api.ts";
 import {
     ChevronRight, Mail, Phone, MapPin, Clock, Send,
     MessageSquare, CheckCircle, Facebook, Twitter, Instagram,
@@ -16,7 +17,7 @@ export default function ContactPage() {
         if (!form.name || !form.email || !form.message) return;
         setLoading(true);
         try {
-            const res = await fetch("/api/messages", {
+            const res = await fetch(`${API_BASE}/messages`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(form),

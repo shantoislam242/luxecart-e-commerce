@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext.tsx";
+import { API_BASE } from "../../api/api.ts";
 import {
   Search,
   CheckCircle,
@@ -29,7 +30,7 @@ export default function AdminOrders() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("/api/orders", {
+      const res = await fetch(`${API_BASE}/orders`, {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       const data = await res.json();
@@ -57,7 +58,7 @@ export default function AdminOrders() {
   const updateStatus = async (id: number, status: string) => {
     setOpenMenu(null);
     try {
-      const res = await fetch(`/api/orders/${id}/status`, {
+      const res = await fetch(`${API_BASE}/orders/${id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

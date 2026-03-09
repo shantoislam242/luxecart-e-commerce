@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
+import { API_BASE } from "../api/api.ts";
 import {
     ChevronRight, Clock, ArrowRight, Search, TrendingUp, Loader2,
 } from "lucide-react";
@@ -38,7 +39,7 @@ export default function BlogPage() {
     const [searchQ, setSearchQ] = useState("");
 
     useEffect(() => {
-        fetch("/api/blog")
+        fetch(`${API_BASE}/blog`)
             .then((r) => r.json())
             .then((data) => { setPosts(Array.isArray(data) ? data : []); setLoading(false); })
             .catch(() => setLoading(false));

@@ -4,6 +4,7 @@ import { useCart } from "../context/CartContext.tsx";
 import { useAuth } from "../context/AuthContext.tsx";
 import { MapPin, CreditCard, ShieldCheck, ArrowRight, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { API_BASE } from "../api/api.ts";
 
 export default function Checkout() {
   const { cartItems, totalPrice, clearCart } = useCart();
@@ -24,7 +25,7 @@ export default function Checkout() {
   const handlePlaceOrder = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/orders", {
+      const res = await fetch(`${API_BASE}/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +54,7 @@ export default function Checkout() {
   if (step === 3) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-8">
-        <motion.div 
+        <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center"
@@ -65,13 +66,13 @@ export default function Checkout() {
           <p className="text-slate-500">Your order #{orderId?.toString().padStart(6, '0')} has been placed successfully.</p>
         </div>
         <div className="flex space-x-4">
-          <button 
+          <button
             onClick={() => navigate("/profile")}
             className="px-8 py-3 bg-slate-900 text-white rounded-full font-bold hover:bg-slate-800 transition-all"
           >
             View Orders
           </button>
-          <button 
+          <button
             onClick={() => navigate("/")}
             className="px-8 py-3 bg-white border border-slate-200 text-slate-900 rounded-full font-bold hover:bg-slate-50 transition-all"
           >
@@ -100,7 +101,7 @@ export default function Checkout() {
         <div className="lg:col-span-2">
           <AnimatePresence mode="wait">
             {step === 1 ? (
-              <motion.div 
+              <motion.div
                 key="shipping"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -163,7 +164,7 @@ export default function Checkout() {
                   </div>
                 </div>
 
-                <button 
+                <button
                   onClick={() => setStep(2)}
                   disabled={!address.street || !address.city || !address.zip}
                   className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center space-x-2 hover:bg-emerald-600 disabled:bg-slate-200 transition-all"
@@ -173,7 +174,7 @@ export default function Checkout() {
                 </button>
               </motion.div>
             ) : (
-              <motion.div 
+              <motion.div
                 key="payment"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -208,13 +209,13 @@ export default function Checkout() {
                 </div>
 
                 <div className="flex space-x-4">
-                  <button 
+                  <button
                     onClick={() => setStep(1)}
                     className="flex-1 px-8 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-all"
                   >
                     Back
                   </button>
-                  <button 
+                  <button
                     onClick={handlePlaceOrder}
                     disabled={loading}
                     className="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center space-x-2 hover:bg-emerald-600 disabled:bg-slate-200 transition-all shadow-xl shadow-slate-900/10"
@@ -231,7 +232,7 @@ export default function Checkout() {
         <aside className="space-y-6">
           <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
             <h2 className="text-xl font-bold text-slate-900">Order Summary</h2>
-            
+
             <div className="space-y-4 max-h-60 overflow-y-auto pr-2">
               {cartItems.map((item) => (
                 <div key={item.productId} className="flex items-center space-x-4">

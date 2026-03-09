@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Plus, Pencil, Trash2, X, Save, Users, User, Briefcase, AlignLeft, ArrowUp, ArrowDown } from "lucide-react";
 import ImageUpload from "../../components/ImageUpload.tsx";
+import { API_BASE } from "../../api/api.ts";
 
 interface TeamMember {
     id: number;
@@ -30,7 +31,7 @@ export default function AdminTeam() {
 
     const fetchMembers = async () => {
         setLoading(true);
-        const res = await fetch("/api/team");
+        const res = await fetch(`${API_BASE}/team`);
         const data = await res.json();
         setMembers(Array.isArray(data) ? data : []);
         setLoading(false);
@@ -54,7 +55,7 @@ export default function AdminTeam() {
         if (!form.name.trim() || !form.role.trim()) return showToast("Name and role required", "err");
         setSaving(true);
         const method = editingMember ? "PUT" : "POST";
-        const url = editingMember ? `/api/team/${editingMember.id}` : "/api/team";
+        const url = editingMember ? `${API_BASE}/team/${editingMember.id}` : `${API_BASE}/team`;
         const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
         if (res.ok) { showToast(editingMember ? "Member updated!" : "Member added!"); setShowModal(false); fetchMembers(); }
         else showToast("Failed", "err");
@@ -63,14 +64,14 @@ export default function AdminTeam() {
 
     const handleDelete = async (id: number) => {
         if (!confirm("Remove this team member?")) return;
-        const res = await fetch(`/api/team/${id}`, { method: "DELETE" });
+        const res = await fetch(`${API_BASE}/team/${id}`, { method: "DELETE" });
         if (res.ok) { showToast("Member removed"); fetchMembers(); }
         else showToast("Failed", "err");
     };
 
     const moveOrder = async (member: TeamMember, dir: "up" | "down") => {
         const newOrder = dir === "up" ? member.displayOrder - 1 : member.displayOrder + 1;
-        await fetch(`/api/team/${member.id}`, {
+        await fetch(`${API_BASE}/team/${member.id}`, {
             method: "PUT", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ...member, displayOrder: newOrder }),
         });

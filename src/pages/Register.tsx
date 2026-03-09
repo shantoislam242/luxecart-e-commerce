@@ -6,6 +6,7 @@ import {
   CheckCircle, AlertCircle, Sparkles, ShieldCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { API_BASE } from "../api/api.ts";
 
 // Password strength helper
 function getStrength(p: string) {
@@ -57,7 +58,7 @@ export default function Register() {
     setError("");
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
@@ -131,7 +132,7 @@ export default function Register() {
             {[1, 2].map((s) => (
               <React.Fragment key={s}>
                 <div className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-all duration-300 ${step === s ? "bg-emerald-600 text-white scale-110 shadow-md shadow-emerald-500/30"
-                    : step > s ? "bg-emerald-100 text-emerald-600" : "bg-slate-100 text-slate-400"
+                  : step > s ? "bg-emerald-100 text-emerald-600" : "bg-slate-100 text-slate-400"
                   }`}>
                   {step > s ? <CheckCircle className="w-4 h-4" /> : s}
                 </div>

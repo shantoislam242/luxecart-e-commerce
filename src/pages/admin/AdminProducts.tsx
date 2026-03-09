@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import ImageUpload from "../../components/ImageUpload.tsx";
+import { API_BASE } from "../../api/api.ts";
 
 export default function AdminProducts() {
   const { user } = useAuth();
@@ -39,7 +40,7 @@ export default function AdminProducts() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch("/api/products?limit=1000"); // Admin can see more
+      const res = await fetch(`${API_BASE}/products?limit=1000`); // Admin can see more
       const data = await res.json();
       setProducts(data.products || []);
     } catch (error) {
@@ -55,7 +56,7 @@ export default function AdminProducts() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const url = editingProduct ? `/api/products/${editingProduct.id}` : "/api/products";
+    const url = editingProduct ? `${API_BASE}/products/${editingProduct.id}` : `${API_BASE}/products`;
     const method = editingProduct ? "PUT" : "POST";
 
     try {
@@ -92,7 +93,7 @@ export default function AdminProducts() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/products/${id}`, {
+      const res = await fetch(`${API_BASE}/products/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${user?.token}` }
       });

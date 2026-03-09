@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Star, ShoppingCart, ArrowLeft, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { useCart } from "../context/CartContext.tsx";
 import { motion } from "motion/react";
+import { API_BASE } from "../api/api.ts";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -15,7 +16,7 @@ export default function ProductDetail() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`/api/products/${id}`);
+        const res = await fetch(`${API_BASE}/products/${id}`);
         const data = await res.json();
         setProduct(data);
       } catch (error) {
@@ -46,7 +47,7 @@ export default function ProductDetail() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      <button 
+      <button
         onClick={() => navigate(-1)}
         className="flex items-center space-x-2 text-slate-500 hover:text-emerald-600 transition-colors"
       >
@@ -56,15 +57,15 @@ export default function ProductDetail() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Image Gallery */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="space-y-4"
         >
           <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-white border border-slate-100 shadow-sm">
-            <img 
-              src={images[0]} 
-              alt={product.name} 
+            <img
+              src={images[0]}
+              alt={product.name}
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
             />
@@ -79,7 +80,7 @@ export default function ProductDetail() {
         </motion.div>
 
         {/* Product Info */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           className="space-y-8"
@@ -105,7 +106,7 @@ export default function ProductDetail() {
           <div className="space-y-6 pt-6 border-t border-slate-100">
             <div className="flex items-center space-x-6">
               <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden">
-                <button 
+                <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   className="px-4 py-2 hover:bg-slate-50 transition-colors"
                 >
@@ -114,7 +115,7 @@ export default function ProductDetail() {
                 <span className="px-4 py-2 font-bold text-slate-900 border-x border-slate-200 min-w-[50px] text-center">
                   {quantity}
                 </span>
-                <button 
+                <button
                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
                   className="px-4 py-2 hover:bg-slate-50 transition-colors"
                 >

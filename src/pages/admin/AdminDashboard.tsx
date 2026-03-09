@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.tsx";
+import { API_BASE } from "../../api/api.ts";
 import {
   TrendingUp,
   ShoppingBag,
@@ -29,7 +30,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("/api/auth/stats", {
+        const res = await fetch(`${API_BASE}/auth/stats`, {
           headers: { Authorization: `Bearer ${user?.token}` },
         });
         const data = await res.json();

@@ -4,6 +4,7 @@ import {
     Lock, Eye, EyeOff, ShieldCheck, CheckCircle, AlertCircle, KeyRound,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.tsx";
+import { API_BASE } from "../../api/api.ts";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -32,7 +33,7 @@ export default function AdminSettings() {
 
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch("/api/auth/change-password", {
+            const res = await fetch(`${API_BASE}/auth/change-password`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

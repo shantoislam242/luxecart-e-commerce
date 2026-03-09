@@ -2,6 +2,7 @@ import React, { useRef, useState, useCallback } from "react";
 import { Upload, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../context/AuthContext.tsx";
+import { API_BASE } from "../api/api.ts";
 
 interface Props {
     value: string | string[];
@@ -36,7 +37,7 @@ export default function ImageUpload({ value, onChange, multiple = false, label =
             fd.append("image", file);
 
             try {
-                const res = await fetch("/api/upload", {
+                const res = await fetch(`${API_BASE}/upload`, {
                     method: "POST",
                     headers: { Authorization: `Bearer ${user?.token}` },
                     body: fd,
@@ -151,8 +152,8 @@ export default function ImageUpload({ value, onChange, multiple = false, label =
                 onDrop={onDrop}
                 onClick={() => inputRef.current?.click()}
                 className={`relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-6 cursor-pointer select-none transition-all duration-200 ${dragging
-                        ? "border-emerald-400 bg-emerald-50 scale-[1.01]"
-                        : "border-slate-200 bg-slate-50 hover:border-emerald-300 hover:bg-emerald-50/40"
+                    ? "border-emerald-400 bg-emerald-50 scale-[1.01]"
+                    : "border-slate-200 bg-slate-50 hover:border-emerald-300 hover:bg-emerald-50/40"
                     }`}
             >
                 <input

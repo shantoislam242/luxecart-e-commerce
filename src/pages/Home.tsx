@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { API_BASE } from "../api/api.ts";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard.tsx";
 import {
@@ -330,7 +331,7 @@ export default function Home() {
     }
 
     try {
-      const res = await fetch("/api/newsletter/subscribe", {
+      const res = await fetch(`${API_BASE}/newsletter/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

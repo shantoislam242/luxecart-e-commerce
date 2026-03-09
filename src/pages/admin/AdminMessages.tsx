@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { API_BASE } from "../../api/api.ts";
 import {
     Mail, Trash2, CheckCheck, Search, Eye, EyeOff,
     MessageSquare, Clock, User, AlertCircle,
@@ -28,7 +29,7 @@ export default function AdminMessages() {
 
     const fetchMessages = async () => {
         setLoading(true);
-        const res = await fetch("/api/messages");
+        const res = await fetch(`${API_BASE}/messages`);
         const data = await res.json();
         setMessages(data.messages || []);
         setUnread(data.unread || 0);
@@ -39,14 +40,14 @@ export default function AdminMessages() {
 
     const handleMarkRead = async (msg: Message) => {
         if (msg.isRead) return;
-        await fetch(`/api/messages/${msg.id}/read`, { method: "PUT" });
+        await fetch(`${API_BASE}/messages/${msg.id}/read`, { method: "PUT" });
         fetchMessages();
         if (selected?.id === msg.id) setSelected({ ...msg, isRead: 1 });
     };
 
     const handleDelete = async (id: number) => {
         if (!confirm("Delete this message permanently?")) return;
-        await fetch(`/api/messages/${id}`, { method: "DELETE" });
+        await fetch(`${API_BASE}/messages/${id}`, { method: "DELETE" });
         if (selected?.id === id) setSelected(null);
         showToast("Message deleted");
         fetchMessages();

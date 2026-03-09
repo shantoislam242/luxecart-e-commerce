@@ -10,6 +10,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { API_BASE } from "../../api/api.ts";
 
 export default function AdminUsers() {
   const { user: currentUser } = useAuth();
@@ -26,7 +27,7 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch("/api/auth/users", {
+      const res = await fetch(`${API_BASE}/auth/users`, {
         headers: { Authorization: `Bearer ${currentUser?.token}` },
       });
       const data = await res.json();
@@ -48,7 +49,7 @@ export default function AdminUsers() {
     }
     const newRole = currentRole === "admin" ? "user" : "admin";
     try {
-      const res = await fetch(`/api/auth/users/${userId}/role`, {
+      const res = await fetch(`${API_BASE}/auth/users/${userId}/role`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -70,7 +71,7 @@ export default function AdminUsers() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/auth/${id}`, {
+      const res = await fetch(`${API_BASE}/auth/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${currentUser?.token}` },
       });

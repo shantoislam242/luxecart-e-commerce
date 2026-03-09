@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext.tsx";
+import { API_BASE } from "../../api/api.ts";
 import {
     Search,
     Mail,
@@ -25,7 +26,7 @@ export default function AdminNewsletter() {
 
     const fetchSubscriptions = async () => {
         try {
-            const res = await fetch("/api/newsletter", {
+            const res = await fetch(`${API_BASE}/newsletter`, {
                 headers: { Authorization: `Bearer ${currentUser?.token}` },
             });
             const data = await res.json();

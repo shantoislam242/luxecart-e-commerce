@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext.tsx";
+import { API_BASE } from "../api/api.ts";
 import { Link } from "react-router-dom";
 import {
   Package, MapPin, User as UserIcon, Calendar, CheckCircle, Clock,
@@ -40,7 +41,7 @@ export default function Profile() {
     if (pwForm.newPwd.length < 6) { setPwStatus("error"); setPwMsg("Min 6 characters required."); return; }
     setPwStatus("loading");
     try {
-      const res = await fetch("/api/auth/change-password", {
+      const res = await fetch(`${API_BASE}/auth/change-password`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${user?.token}` },
         body: JSON.stringify({ currentPassword: pwForm.current, newPassword: pwForm.newPwd }),
@@ -62,7 +63,7 @@ export default function Profile() {
 
   const handleDeleteAccount = async () => {
     try {
-      const res = await fetch(`/api/auth/${user?.id}`, {
+      const res = await fetch(`${API_BASE}/auth/${user?.id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${user?.token}` },
       });
@@ -73,7 +74,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch("/api/orders/myorders", {
+        const res = await fetch(`${API_BASE}/orders/myorders`, {
           headers: { Authorization: `Bearer ${user?.token}` },
         });
         setOrders(await res.json());

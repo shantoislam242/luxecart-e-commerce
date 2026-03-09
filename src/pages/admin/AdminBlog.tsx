@@ -5,6 +5,7 @@ import {
     BookOpen, Image, AlignLeft, Tag, User, Clock, Globe, FileText,
 } from "lucide-react";
 import ImageUpload from "../../components/ImageUpload.tsx";
+import { API_BASE } from "../../api/api.ts";
 
 interface BlogPost {
     id: number;
@@ -52,7 +53,7 @@ export default function AdminBlog() {
 
     const fetchPosts = async () => {
         setLoading(true);
-        const res = await fetch("/api/blog/admin/all");
+        const res = await fetch(`${API_BASE}/blog/admin/all`);
         const data = await res.json();
         setPosts(Array.isArray(data) ? data : []);
         setLoading(false);
@@ -80,7 +81,7 @@ export default function AdminBlog() {
         if (!form.title.trim() || !form.slug.trim()) return showToast("Title and slug required", "err");
         setSaving(true);
         const method = editingPost ? "PUT" : "POST";
-        const url = editingPost ? `/api/blog/${editingPost.id}` : "/api/blog";
+        const url = editingPost ? `${API_BASE}/blog/${editingPost.id}` : `${API_BASE}/blog`;
         const res = await fetch(url, {
             method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form),
         });
@@ -97,13 +98,13 @@ export default function AdminBlog() {
 
     const handleDelete = async (id: number) => {
         if (!confirm("Delete this post permanently?")) return;
-        const res = await fetch(`/api/blog/${id}`, { method: "DELETE" });
+        const res = await fetch(`${API_BASE}/blog/${id}`, { method: "DELETE" });
         if (res.ok) { showToast("Post deleted"); fetchPosts(); }
         else showToast("Failed to delete", "err");
     };
 
     const handleTogglePublish = async (post: BlogPost) => {
-        await fetch(`/api/blog/${post.id}`, {
+        await fetch(`${API_BASE}/blog/${post.id}`, {
             method: "PUT", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ...post, published: post.published ? 0 : 1 }),
         });

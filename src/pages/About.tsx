@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
+import { API_BASE } from "../api/api.ts";
 import {
     ShieldCheck, Truck, RotateCcw, Star, Users, Globe,
     Award, Heart, ChevronRight, ArrowRight, Zap,
@@ -59,7 +60,7 @@ export default function AboutPage() {
     const [team, setTeam] = useState<TeamMember[]>([]);
 
     useEffect(() => {
-        fetch("/api/team")
+        fetch(`${API_BASE}/team`)
             .then((r) => r.json())
             .then((data) => setTeam(Array.isArray(data) ? data : []))
             .catch(() => { });

@@ -15,7 +15,7 @@ import teamRoutes from "./src/server/routes/team.ts";
 import messagesRoutes from "./src/server/routes/messages.ts";
 import uploadRoutes from "./src/server/routes/upload.ts";
 import { proxyImage } from "./src/server/controllers/imageProxyController.ts";
-import { initDB } from "./src/server/db/index.ts";
+import { connectDB } from "./src/server/db/index.ts";
 
 dotenv.config();
 
@@ -29,7 +29,7 @@ async function startServer() {
   // Initialize Database
   try {
     console.log("Initializing database...");
-    initDB();
+    await connectDB();
     console.log("Database initialized.");
   } catch (err) {
     console.error("Failed to initialize database:", err);

@@ -31,7 +31,8 @@ export default function ProductDetail() {
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!product) return <div className="text-center py-20">Product not found</div>;
 
-  const images = JSON.parse(product.images);
+  const images: string[] = (() => { try { return JSON.parse(product.images || "[]"); } catch { return []; } })();
+  const PLACEHOLDER = "https://placehold.co/600x400?text=No+Image";
 
   const handleAddToCart = () => {
     addToCart({
@@ -64,7 +65,7 @@ export default function ProductDetail() {
         >
           <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-white border border-slate-100 shadow-sm">
             <img
-              src={images[0]}
+              src={images[0] || PLACEHOLDER}
               alt={product.name}
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"

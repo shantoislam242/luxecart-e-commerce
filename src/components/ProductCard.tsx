@@ -36,7 +36,8 @@ export default function ProductCard({
 }) {
   const { addToCart } = useCart();
   const navigate = useNavigate();
-  const images: string[] = JSON.parse(product.images);
+  const images: string[] = (() => { try { return JSON.parse(product.images || "[]"); } catch { return []; } })();
+  const PLACEHOLDER = "https://placehold.co/600x400?text=No+Image";
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [addedAnim, setAddedAnim] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -76,7 +77,7 @@ export default function ProductCard({
     : null;
 
   // Pre-process URLs once per render (stable since images array doesn't change)
-  const primarySrc = proxyUrl(images[0]);
+  const primarySrc = proxyUrl(images[0] || PLACEHOLDER);
   const altSrc = images.length > 1 ? proxyUrl(images[1]) : null;
 
   return (

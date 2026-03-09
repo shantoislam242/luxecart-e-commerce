@@ -119,7 +119,7 @@ export default function AdminProducts() {
       description: product.description,
       category: product.category,
       stock: product.stock.toString(),
-      image: JSON.parse(product.images)[0]
+      image: (() => { try { return JSON.parse(product.images || "[]")[0] || ""; } catch { return ""; } })()
     });
     setShowModal(true);
   };
@@ -176,13 +176,13 @@ export default function AdminProducts() {
                   <td colSpan={6} className="px-6 py-12 text-center text-slate-400">No products found.</td>
                 </tr>
               ) : filteredProducts.map((product: any) => {
-                const images = JSON.parse(product.images);
+                const images = (() => { try { return JSON.parse(product.images || "[]"); } catch { return []; } })();
                 return (
                   <tr key={product.id} className="hover:bg-slate-50/50 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-4">
                         <img
-                          src={images[0]}
+                          src={images[0] || "https://placehold.co/48x48?text=?"}
                           alt={product.name}
                           className="w-12 h-12 rounded-xl object-cover border border-slate-100"
                           referrerPolicy="no-referrer"

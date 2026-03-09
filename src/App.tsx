@@ -13,6 +13,10 @@ import Checkout from "./pages/Checkout.tsx";
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
 import Profile from "./pages/Profile.tsx";
+import CategoryPage from "./pages/CategoryPage.tsx";
+import AboutPage from "./pages/About.tsx";
+import BlogPage from "./pages/Blog.tsx";
+import ContactPage from "./pages/Contact.tsx";
 
 // Admin
 import AdminLayout from "./components/AdminLayout.tsx";
@@ -45,6 +49,10 @@ function AppContent() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/checkout" element={
             <ProtectedRoute>
               <Checkout />

@@ -15,16 +15,28 @@ import {
   ChevronDown,
   ArrowRight,
   Zap,
+  Info,
+  BookOpen,
+  Phone,
+  Tag,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.tsx";
 import { useCart } from "../context/CartContext.tsx";
 import { motion, AnimatePresence } from "motion/react";
 
 const NAV_CATEGORIES = [
-  { name: "Electronics", icon: Smartphone, color: "text-blue-600 bg-blue-50", href: "/?category=Electronics" },
-  { name: "Fashion", icon: ShoppingBag, color: "text-pink-600 bg-pink-50", href: "/?category=Fashion" },
-  { name: "Home & Living", icon: HomeIcon, color: "text-emerald-600 bg-emerald-50", href: "/?category=Home+%26+Living" },
-  { name: "Accessories", icon: Watch, color: "text-amber-600 bg-amber-50", href: "/?category=Accessories" },
+  { name: "Electronics", icon: Smartphone, color: "text-blue-600 bg-blue-50", href: "/category/electronics" },
+  { name: "Fashion", icon: ShoppingBag, color: "text-pink-600 bg-pink-50", href: "/category/fashion" },
+  { name: "Home & Living", icon: HomeIcon, color: "text-emerald-600 bg-emerald-50", href: "/category/home-living" },
+  { name: "Accessories", icon: Watch, color: "text-amber-600 bg-amber-50", href: "/category/accessories" },
+];
+
+// Top-level nav links (replacing Electronics / Fashion / Accessories)
+const NAV_LINKS = [
+  { label: "About Us", href: "/about", icon: Info },
+  { label: "Blog", href: "/blog", icon: BookOpen },
+  { label: "Contact", href: "/contact", icon: Phone },
+  { label: "Deals", href: "/?category=", icon: Tag, highlight: true },
 ];
 
 export default function Navbar() {
@@ -86,8 +98,8 @@ export default function Navbar() {
   return (
     <nav
       className={`sticky top-0 z-50 transition-all duration-300 ${scrolled
-          ? "bg-white/90 backdrop-blur-xl shadow-lg shadow-slate-900/5 border-b border-slate-100"
-          : "bg-white border-b border-slate-200"
+        ? "bg-white/90 backdrop-blur-xl shadow-lg shadow-slate-900/5 border-b border-slate-100"
+        : "bg-white border-b border-slate-200"
         }`}
     >
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -181,24 +193,20 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
 
-          <Link
-            to="/?category=Electronics"
-            className="text-sm font-medium text-slate-500 hover:text-emerald-600 transition-colors"
-          >
-            Electronics
-          </Link>
-          <Link
-            to="/?category=Fashion"
-            className="text-sm font-medium text-slate-500 hover:text-emerald-600 transition-colors"
-          >
-            Fashion
-          </Link>
-          <Link
-            to="/?category=Accessories"
-            className="text-sm font-medium text-slate-500 hover:text-emerald-600 transition-colors"
-          >
-            Accessories
-          </Link>
+          {/* Top-level nav links */}
+          {NAV_LINKS.map(({ label, href, icon: Icon, highlight }) => (
+            <Link
+              key={label}
+              to={href}
+              className={`flex items-center space-x-1.5 text-sm font-medium transition-colors ${highlight
+                ? "text-amber-600 hover:text-amber-500 font-bold"
+                : "text-slate-500 hover:text-emerald-600"
+                }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{label}</span>
+            </Link>
+          ))}
         </div>
 
         {/* Right actions */}
@@ -360,65 +368,78 @@ export default function Navbar() {
               ))}
 
               <div className="border-t border-slate-100 my-2 pt-2 space-y-1">
-                <Link
-                  to="/cart"
-                  className="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <ShoppingCart className="w-5 h-5 text-slate-500" />
-                  <span className="text-sm font-medium text-slate-700">
-                    Cart {totalItems > 0 && `(${totalItems})`}
-                  </span>
-                </Link>
-                {user ? (
-                  <>
-                    <Link
-                      to="/profile"
-                      className="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      <User className="w-5 h-5 text-slate-500" />
-                      <span className="text-sm font-medium text-slate-700">
-                        {user.name || "Profile"}
-                      </span>
-                    </Link>
-                    {user.role === "admin" && (
-                      <Link
-                        to="/admin"
-                        className="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-emerald-50 text-emerald-700 font-medium transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <Shield className="w-5 h-5" />
-                        <span className="text-sm font-medium">Admin Dashboard</span>
-                      </Link>
-                    )}
-                    <button
-                      onClick={() => { logout(); setIsMenuOpen(false); }}
-                      className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-red-50 text-red-500 transition-colors"
-                    >
-                      <LogOut className="w-5 h-5" />
-                      <span className="text-sm font-medium">Logout</span>
-                    </button>
-                  </>
-                ) : (
-                  <div className="flex flex-col space-y-2 pt-1">
-                    <Link
-                      to="/login"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="text-center py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:border-emerald-400 transition-all"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      to="/register"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="text-center py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-emerald-600 transition-all"
-                    >
-                      Create Account
-                    </Link>
-                  </div>
-                )}
+                <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400 px-2 pb-1">Pages</p>
+                {NAV_LINKS.map(({ label, href, icon: Icon, highlight }) => (
+                  <Link
+                    key={label}
+                    to={href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors ${highlight ? "text-amber-600 font-bold" : "text-slate-700"
+                      }`}
+                  >
+                    <Icon className="w-5 h-5 text-slate-400" />
+                    <span className="text-sm font-medium">{label}</span>
+                  </Link>
+                ))}
               </div>
+              <Link
+                to="/cart"
+                className="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <ShoppingCart className="w-5 h-5 text-slate-500" />
+                <span className="text-sm font-medium text-slate-700">
+                  Cart {totalItems > 0 && `(${totalItems})`}
+                </span>
+              </Link>
+              {user ? (
+                <>
+                  <Link
+                    to="/profile"
+                    className="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <User className="w-5 h-5 text-slate-500" />
+                    <span className="text-sm font-medium text-slate-700">
+                      {user.name || "Profile"}
+                    </span>
+                  </Link>
+                  {user.role === "admin" && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-emerald-50 text-emerald-700 font-medium transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Shield className="w-5 h-5" />
+                      <span className="text-sm font-medium">Admin Dashboard</span>
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => { logout(); setIsMenuOpen(false); }}
+                    className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-red-50 text-red-500 transition-colors"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span className="text-sm font-medium">Logout</span>
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col space-y-2 pt-1">
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-center py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:border-emerald-400 transition-all"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-center py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-emerald-600 transition-all"
+                  >
+                    Create Account
+                  </Link>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

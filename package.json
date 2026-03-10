@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "concurrently --kill-others \"npm run api\" \"vite\"",
     "api": "tsx server.ts",
+    "start": "npm run build && tsx server.ts",
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",

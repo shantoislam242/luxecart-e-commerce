@@ -4,13 +4,14 @@ import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
 import { Readable } from "stream";
 import { protect } from "../middleware/auth.ts";
 
-// Configure Cloudinary
-// Ensure these environment variables are set in your .env or server (Vercel/Render) dashboard
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// We will configure cloudinary dynamically when uploading to avoid ES module hoisting issues with dotenv
+const configureCloudinary = () => {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+};
 
 // Use memory storage for serverless environments
 const storage = multer.memoryStorage();
@@ -38,6 +39,7 @@ const router = express.Router();
 // Helper to stream file to Cloudinary
 const uploadToCloudinary = (buffer: Buffer, folder: string = "luxecart_uploads"): Promise<UploadApiResponse> => {
     return new Promise((resolve, reject) => {
+        configureCloudinary(); // Ensure Cloudinary is loaded with updated env variables
         const stream = cloudinary.uploader.upload_stream(
             { folder },
             (error, result) => {

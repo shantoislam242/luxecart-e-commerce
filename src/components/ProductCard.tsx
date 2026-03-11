@@ -9,8 +9,18 @@ import { motion, AnimatePresence } from "motion/react";
 // 7-day immutable Cache-Control — no more slow Unsplash reloads on scroll.
 function proxyUrl(src: string): string {
   if (!src) return src;
-  // Already proxied or a local path → keep as-is
-  if (src.startsWith("/") || src.startsWith("blob:") || src.startsWith("data:")) return src;
+  // Already proxied, local path, or own backend → keep as-is
+  if (
+    src.startsWith("/") ||
+    src.startsWith("blob:") ||
+    src.startsWith("data:") ||
+    src.includes("localhost") ||
+    src.includes("127.0.0.1") ||
+    src.includes("onrender.com") ||
+    src.includes("cloudinary.com")
+  ) {
+    return src;
+  }
   // External → optimise Unsplash params then route through proxy
   try {
     const url = new URL(src);

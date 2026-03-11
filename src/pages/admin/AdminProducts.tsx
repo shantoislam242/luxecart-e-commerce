@@ -119,7 +119,7 @@ export default function AdminProducts() {
       description: product.description,
       category: product.category,
       stock: product.stock.toString(),
-      image: (() => { try { return JSON.parse(product.images || "[]")[0] || ""; } catch { return ""; } })()
+      image: Array.isArray(product.images) ? (product.images[0] || "") : (() => { try { return JSON.parse(product.images || "[]")[0] || ""; } catch { return ""; } })()
     });
     setShowModal(true);
   };
@@ -176,7 +176,7 @@ export default function AdminProducts() {
                   <td colSpan={6} className="px-6 py-12 text-center text-slate-400">No products found.</td>
                 </tr>
               ) : filteredProducts.map((product: any) => {
-                const images = (() => { try { return JSON.parse(product.images || "[]"); } catch { return []; } })();
+                const images = Array.isArray(product.images) ? product.images : (() => { try { return JSON.parse(product.images || "[]"); } catch { return []; } })();
                 return (
                   <tr key={product.id} className="hover:bg-slate-50/50 transition-colors group">
                     <td className="px-6 py-4">

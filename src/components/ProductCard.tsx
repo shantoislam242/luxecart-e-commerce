@@ -36,7 +36,7 @@ export default function ProductCard({
 }) {
   const { addToCart } = useCart();
   const navigate = useNavigate();
-  const images: string[] = (() => { try { return JSON.parse(product.images || "[]"); } catch { return []; } })();
+  const images: string[] = Array.isArray(product.images) ? product.images : (() => { try { return JSON.parse(product.images || "[]"); } catch { return []; } })();
   const PLACEHOLDER = "https://placehold.co/600x400?text=No+Image";
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [addedAnim, setAddedAnim] = useState(false);

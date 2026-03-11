@@ -36,15 +36,53 @@ const upload = multer({
 
 const router = express.Router();
 
-// Helper to stream file to Cloudinary
-const uploadToCloudinary = (buffer: Buffer, folder: string = "luxecart_uploads"): Promise<UploadApiResponse> => {
+import fs from "fs";
+import path from "path";
+import crypto from "crypto";
+
+// Ensure local uploads directory exists
+const LOCAL_UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
+if (!fs.existsSync(LOCAL_UPLOAD_DIR)) {
+    fs.mkdirSync(LOCAL_UPLOAD_DIR, { recursive: true });
+}
+
+// Helper to stream file to Cloudinary (or local fallback)
+const uploadToCloudinary = async (buffer: Buffer, folder: string = "luxecart_uploads", originalName?: string): Promise<{ secure_url: string, public_id: string }> => {
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+
+    // Fallback: If cloudinary is not configured, save locally
+    if (!cloudName || cloudName === "your_cloud_name" || cloudName === "") {
+        console.log("[upload] Cloudinary not configured. Using local filesystem fallback.");
+        return new Promise((resolve, reject) => {
+            try {
+                // Generate a unique filename
+                const ext = originalName ? path.extname(originalName) : ".jpg";
+                const hash = crypto.randomBytes(8).toString("hex");
+                const filename = `${Date.now()}-${hash}${ext}`;
+                const filepath = path.join(LOCAL_UPLOAD_DIR, filename);
+
+                fs.writeFileSync(filepath, buffer);
+
+                // Return URL relative to the backend server (handled by static file serving in server.ts)
+                const backendUrl = process.env.BACKEND_URL || "http://localhost:3000";
+                resolve({
+                    secure_url: `${backendUrl}/uploads/${filename}`,
+                    public_id: `local_${filename}`
+                });
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
+    // Normal Cloudinary upload
     return new Promise((resolve, reject) => {
         configureCloudinary(); // Ensure Cloudinary is loaded with updated env variables
         const stream = cloudinary.uploader.upload_stream(
             { folder },
             (error, result) => {
                 if (error || !result) return reject(error || new Error("Upload failed"));
-                resolve(result);
+                resolve(result as any);
             }
         );
         const bufferStream = new Readable();
@@ -74,7 +112,7 @@ router.post(
 
         try {
             console.log("[upload] Uploading image to Cloudinary...");
-            const result = await uploadToCloudinary(req.file.buffer);
+            const result = await uploadToCloudinary(req.file.buffer, "luxecart_uploads", req.file.originalname);
             console.log("[upload] Saved:", result.secure_url);
             res.json({ url: result.secure_url, filename: result.public_id });
         } catch (error: any) {
@@ -104,7 +142,7 @@ router.post(
 
         try {
             console.log("[upload] Uploading multiple images to Cloudinary...");
-            const uploadPromises = (req.files as any[]).map((f) => uploadToCloudinary(f.buffer));
+            const uploadPromises = (req.files as any[]).map((f) => uploadToCloudinary(f.buffer, "luxecart_uploads", f.originalname));
             const results = await Promise.all(uploadPromises);
 
             const urls = results.map((r) => r.secure_url);

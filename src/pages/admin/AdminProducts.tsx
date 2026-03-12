@@ -5,7 +5,6 @@ import {
   Search,
   Edit2,
   Trash2,
-  Package,
   AlertCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -19,8 +18,9 @@ export default function AdminProducts() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<any>(null); // product to delete
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [isImageUploading, setIsImageUploading] = useState(false);
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -36,11 +36,18 @@ export default function AdminProducts() {
     image: ""
   });
 
-  const resetForm = () => setFormData({ name: "", price: "", description: "", category: "", stock: "", image: "" });
+  const resetForm = () => setFormData({
+    name: "",
+    price: "",
+    description: "",
+    category: "",
+    stock: "",
+    image: ""
+  });
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`${API_BASE}/products?limit=1000`); // Admin can see more
+      const res = await fetch(`${API_BASE}/products?limit=1000`);
       const data = await res.json();
       setProducts(data.products || []);
     } catch (error) {
@@ -56,6 +63,12 @@ export default function AdminProducts() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isImageUploading) {
+      showToast("Image upload is still in progress", false);
+      return;
+    }
+
     const url = editingProduct ? `${API_BASE}/products/${editingProduct.id}` : `${API_BASE}/products`;
     const method = editingProduct ? "PUT" : "POST";
 
@@ -72,7 +85,7 @@ export default function AdminProducts() {
           category: formData.category,
           price: Number(formData.price),
           stock: Number(formData.stock),
-          images: JSON.stringify([formData.image]), // ← must be a JSON array string
+          images: formData.image ? [formData.image] : [],
         })
       });
 
@@ -81,13 +94,14 @@ export default function AdminProducts() {
         setShowModal(false);
         setEditingProduct(null);
         resetForm();
+        setIsImageUploading(false);
         showToast(editingProduct ? "Product updated" : "Product created");
       } else {
         const data = await res.json();
         showToast(data.message || "Save failed", false);
       }
     } catch {
-      showToast("Network error — could not save product", false);
+      showToast("Network error - could not save product", false);
     }
   };
 
@@ -104,22 +118,38 @@ export default function AdminProducts() {
       } else {
         showToast(data.message || "Delete failed", false);
       }
-    } catch (error) {
-      showToast("Network error — could not delete product", false);
+    } catch {
+      showToast("Network error - could not delete product", false);
     } finally {
       setDeleteConfirm(null);
     }
   };
 
+  const openCreate = () => {
+    setEditingProduct(null);
+    resetForm();
+    setIsImageUploading(false);
+    setShowModal(true);
+  };
+
   const openEdit = (product: any) => {
     setEditingProduct(product);
+    setIsImageUploading(false);
     setFormData({
       name: product.name,
       price: product.price.toString(),
       description: product.description,
       category: product.category,
       stock: product.stock.toString(),
-      image: Array.isArray(product.images) ? (product.images[0] || "") : (() => { try { return JSON.parse(product.images || "[]")[0] || ""; } catch { return ""; } })()
+      image: Array.isArray(product.images)
+        ? (product.images[0] || "")
+        : (() => {
+            try {
+              return JSON.parse(product.images || "[]")[0] || "";
+            } catch {
+              return "";
+            }
+          })()
     });
     setShowModal(true);
   };
@@ -131,7 +161,6 @@ export default function AdminProducts() {
 
   return (
     <div className="space-y-6">
-      {/* Header Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -144,7 +173,7 @@ export default function AdminProducts() {
           />
         </div>
         <button
-          onClick={() => { setEditingProduct(null); setShowModal(true); }}
+          onClick={openCreate}
           className="flex items-center justify-center space-x-2 bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
         >
           <Plus className="w-5 h-5" />
@@ -152,7 +181,6 @@ export default function AdminProducts() {
         </button>
       </div>
 
-      {/* Products Table */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -176,7 +204,16 @@ export default function AdminProducts() {
                   <td colSpan={6} className="px-6 py-12 text-center text-slate-400">No products found.</td>
                 </tr>
               ) : filteredProducts.map((product: any) => {
-                const images = Array.isArray(product.images) ? product.images : (() => { try { return JSON.parse(product.images || "[]"); } catch { return []; } })();
+                const images = Array.isArray(product.images)
+                  ? product.images
+                  : (() => {
+                      try {
+                        return JSON.parse(product.images || "[]");
+                      } catch {
+                        return [];
+                      }
+                    })();
+
                 return (
                   <tr key={product.id} className="hover:bg-slate-50/50 transition-colors group">
                     <td className="px-6 py-4">
@@ -212,12 +249,12 @@ export default function AdminProducts() {
                     <td className="px-6 py-4">
                       {product.stock > 0 ? (
                         <span className="flex items-center space-x-1.5 text-emerald-600 text-xs font-bold uppercase">
-                          <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
+                          <div className="w-1.5 h-1.5 bg-current rounded-full" />
                           <span>In Stock</span>
                         </span>
                       ) : (
                         <span className="flex items-center space-x-1.5 text-red-500 text-xs font-bold uppercase">
-                          <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
+                          <div className="w-1.5 h-1.5 bg-current rounded-full" />
                           <span>Out of Stock</span>
                         </span>
                       )}
@@ -248,7 +285,6 @@ export default function AdminProducts() {
         </div>
       </div>
 
-      {/* Add/Edit Modal */}
       <AnimatePresence>
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -326,6 +362,7 @@ export default function AdminProducts() {
                   label="Product Image"
                   value={formData.image}
                   onChange={(url) => setFormData((prev) => ({ ...prev, image: url as string }))}
+                  onUploadingChange={setIsImageUploading}
                 />
 
                 <div className="space-y-2">
@@ -342,13 +379,14 @@ export default function AdminProducts() {
                 <div className="flex space-x-4 pt-4">
                   <button
                     type="submit"
-                    className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
+                    disabled={isImageUploading}
+                    className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {editingProduct ? "Update Product" : "Create Product"}
+                    {isImageUploading ? "Uploading Image..." : editingProduct ? "Update Product" : "Create Product"}
                   </button>
                   <button
                     type="button"
-                    onClick={() => { setShowModal(false); resetForm(); }}
+                    onClick={() => { setShowModal(false); resetForm(); setIsImageUploading(false); }}
                     className="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition-all"
                   >
                     Cancel
@@ -359,22 +397,20 @@ export default function AdminProducts() {
           </div>
         )}
       </AnimatePresence>
-      {/* ── Toast notification ── */}
+
       <AnimatePresence>
         {toast && (
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
-            className={`fixed bottom-6 right-6 z-[60] flex items-center space-x-3 px-5 py-4 rounded-2xl shadow-2xl text-white text-sm font-medium ${toast.ok ? "bg-emerald-600" : "bg-red-500"
-              }`}
+            className={`fixed bottom-6 right-6 z-[60] flex items-center space-x-3 px-5 py-4 rounded-2xl shadow-2xl text-white text-sm font-medium ${toast.ok ? "bg-emerald-600" : "bg-red-500"}`}
           >
-            <span>{toast.ok ? "✅" : "❌"} {toast.msg}</span>
+            <span>{toast.ok ? "OK" : "X"} {toast.msg}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Delete Confirmation Modal ── */}
       <AnimatePresence>
         {deleteConfirm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

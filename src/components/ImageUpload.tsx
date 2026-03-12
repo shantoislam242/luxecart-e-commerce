@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { Upload, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../context/AuthContext.tsx";
@@ -9,6 +9,7 @@ interface Props {
     onChange: (url: string | string[]) => void;
     multiple?: boolean;
     label?: string;
+    onUploadingChange?: (uploading: boolean) => void;
 }
 
 type FileStatus = {
@@ -19,7 +20,7 @@ type FileStatus = {
     error?: string;
 };
 
-export default function ImageUpload({ value, onChange, multiple = false, label = "Image" }: Props) {
+export default function ImageUpload({ value, onChange, multiple = false, label = "Image", onUploadingChange }: Props) {
     const { user } = useAuth();
     const inputRef = useRef<HTMLInputElement>(null);
     const [dragging, setDragging] = useState(false);
@@ -128,6 +129,10 @@ export default function ImageUpload({ value, onChange, multiple = false, label =
     };
 
     const isUploading = queue.some((x) => x.status === "uploading");
+
+    useEffect(() => {
+        onUploadingChange?.(isUploading);
+    }, [isUploading, onUploadingChange]);
 
     // Existing saved URL(s)
     const singleUrl = !multiple && typeof value === "string" ? value : "";

@@ -13,6 +13,16 @@ const configureCloudinary = () => {
     });
 };
 
+const getMissingCloudinaryEnv = () => {
+    const required = [
+        "CLOUDINARY_CLOUD_NAME",
+        "CLOUDINARY_API_KEY",
+        "CLOUDINARY_API_SECRET",
+    ] as const;
+
+    return required.filter((key) => !process.env[key] || process.env[key]?.trim() === "");
+};
+
 // Use memory storage for serverless environments
 const storage = multer.memoryStorage();
 
@@ -32,6 +42,9 @@ const fileFilter = (_req: any, file: any, cb: any) => {
 const upload = multer({
     storage,
     fileFilter,
+    limits: {
+        fileSize: 10 * 1024 * 1024,
+    },
 });
 
 const router = express.Router();
@@ -48,10 +61,14 @@ if (!fs.existsSync(LOCAL_UPLOAD_DIR)) {
 
 // Helper to stream file to Cloudinary (or local fallback)
 const uploadToCloudinary = async (buffer: Buffer, folder: string = "luxecart_uploads", originalName?: string): Promise<{ secure_url: string, public_id: string }> => {
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const missingEnv = getMissingCloudinaryEnv();
+    const hasAnyCloudinaryEnv =
+        !!process.env.CLOUDINARY_CLOUD_NAME ||
+        !!process.env.CLOUDINARY_API_KEY ||
+        !!process.env.CLOUDINARY_API_SECRET;
 
-    // Fallback: If cloudinary is not configured, save locally
-    if (!cloudName || cloudName === "your_cloud_name" || cloudName === "") {
+    // Local fallback is acceptable only for fully unconfigured local development.
+    if (!hasAnyCloudinaryEnv && process.env.NODE_ENV !== "production") {
         console.log("[upload] Cloudinary not configured. Using local filesystem fallback.");
         return new Promise((resolve, reject) => {
             try {
@@ -75,11 +92,21 @@ const uploadToCloudinary = async (buffer: Buffer, folder: string = "luxecart_upl
         });
     }
 
+    if (missingEnv.length > 0) {
+        throw new Error(`Cloudinary environment variables missing: ${missingEnv.join(", ")}`);
+    }
+
     // Normal Cloudinary upload
     return new Promise((resolve, reject) => {
         configureCloudinary(); // Ensure Cloudinary is loaded with updated env variables
         const stream = cloudinary.uploader.upload_stream(
-            { folder },
+            {
+                folder,
+                resource_type: "image",
+                use_filename: true,
+                unique_filename: true,
+                overwrite: false,
+            },
             (error, result) => {
                 if (error || !result) return reject(error || new Error("Upload failed"));
                 resolve(result as any);
